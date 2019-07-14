@@ -2,42 +2,82 @@ import React from "react";
 import uuid from "uuid";
 
 import TimeboxCreator from "./TimeboxCreator";
+import TimeboxesAPI from "../api/AxoisTimeboxesApi";
 import Timebox from "./Timebox";
 
 class TimeboxList extends React.Component {
     state = {
-        timeboxes: [
-            { title: "Uczę się 1", totalTimeInMinutes: "25" },
-            { title: "Uczę się 2", totalTimeInMinutes: "4" },
-            { title: "Uczę się 3", totalTimeInMinutes: "120" },
-        ]
+        "timeboxes": [],
+        loading: true,
+        error: null
     }
 
-    modifyTimeboxes(indexToModify, numOfItemsToModify, newOrUpdatedTimebox) {
-        this.setState(prevState => {
-            const timeboxes = [...prevState.timeboxes];
-            timeboxes.splice(...arguments);
-            return { timeboxes };
-        })
+    componentDidMount() {
+        TimeboxesAPI.getAllTimeboxes().then(
+            (timeboxes) => this.setState({ timeboxes })
+        ).catch(
+            (error) => this.setState({ error })
+        ).finally(
+            () => this.setState({loading: false})
+        )
+    }
+    
+    addTimebox = (timebox) => {
+        TimeboxesAPI.addTimebox(timebox).then(
+            (addedTimebox) => this.setState(prevState => {
+                const timeboxes = [...prevState.timeboxes, addedTimebox];
+                return { timeboxes };
+            })
+        )
+    }
+    removeTimebox = (indexToRemove) => {
+        TimeboxesAPI.removeTimebox(this.state.timeboxes[indexToRemove])
+            .then(
+                () => this.setState(prevState => {
+                    const timeboxes = prevState.timeboxes.filter((timebox, index) => index !== indexToRemove);
+                    return { timeboxes };
+                })
+            )
+        
+    }
+    updateTimebox = (indexToUpdate, timeboxToUpdate) => {
+        TimeboxesAPI.replaceTimebox(timeboxToUpdate)
+            .then(
+                (updatedTimebox) => this.setState(prevState => {
+                    const timeboxes = prevState.timeboxes.map((timebox, index) =>
+                        index === indexToUpdate ? updatedTimebox : timebox
+                    )
+                    return { timeboxes };
+                })
+            )
+        
     }
 
-    handleCreate(newTimebox) {
-        this.modifyTimeboxes(0, 0, newTimebox)
+    handleCreate = (createdTimebox) => {
+        try {
+            this.addTimebox(createdTimebox);
+        } catch (error) {
+            console.log("Jest błąd przy tworzeniu timeboxa:", error)
+        }
+        
     }
-
     render() {
         return (
             <>
-                <TimeboxCreator onCreate={this.handleCreate.bind(this)} />
-                {this.state.timeboxes.map((timebox, index) => (
-                    <Timebox
-                        key={uuid.v4()}
-                        title={timebox.title}
-                        totalTimeInMinutes={timebox.totalTimeInMinutes}
-                        onDelete={() => this.modifyTimeboxes(index, 1)}
-                        onUpdate={(updatedTimebox) => this.modifyTimeboxes(index, 1, updatedTimebox)}
-                    />
-                ))}
+                <TimeboxCreator onCreate={this.handleCreate} />
+                { this.state.loading ? "Timeboxy się ładują..." : null}
+                { this.state.error ? "Nie udało się załadować :(" : null }
+                {
+                    this.state.timeboxes.map((timebox, index) => (
+                        <Timebox 
+                            key={timebox.id} 
+                            title={timebox.title} 
+                            totalTimeInMinutes={timebox.totalTimeInMinutes}
+                            onDelete={() => this.removeTimebox(index)}
+                            onEdit={() => this.updateTimebox(index, {...timebox, title: "Updated timebox"})}
+                        />
+                    ))
+                }
             </>
         )
     }
