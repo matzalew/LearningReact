@@ -2,8 +2,9 @@ import React from "react";
 import uuid from "uuid";
 
 import TimeboxCreator from "./TimeboxCreator";
-import TimeboxesAPI from "../api/AxoisTimeboxesApi";
+import TimeboxesAPI from "../api/FetchTimeboxesApi";
 import Timebox from "./Timebox";
+import AuthenticationContext from "../contexts/AuthenticationContext";
 
 class TimeboxList extends React.Component {
     state = {
@@ -13,7 +14,7 @@ class TimeboxList extends React.Component {
     }
 
     componentDidMount() {
-        TimeboxesAPI.getAllTimeboxes().then(
+        TimeboxesAPI.getAllTimeboxes(this.context.accessToken).then(
             (timeboxes) => this.setState({ timeboxes })
         ).catch(
             (error) => this.setState({ error })
@@ -22,8 +23,10 @@ class TimeboxList extends React.Component {
         )
     }
     
+
+
     addTimebox = (timebox) => {
-        TimeboxesAPI.addTimebox(timebox).then(
+        TimeboxesAPI.addTimebox(timebox, this.context.accessToken).then(
             (addedTimebox) => this.setState(prevState => {
                 const timeboxes = [...prevState.timeboxes, addedTimebox];
                 return { timeboxes };
@@ -31,7 +34,7 @@ class TimeboxList extends React.Component {
         )
     }
     removeTimebox = (indexToRemove) => {
-        TimeboxesAPI.removeTimebox(this.state.timeboxes[indexToRemove])
+        TimeboxesAPI.removeTimebox(this.state.timeboxes[indexToRemove], this.context.accessToken)
             .then(
                 () => this.setState(prevState => {
                     const timeboxes = prevState.timeboxes.filter((timebox, index) => index !== indexToRemove);
@@ -41,7 +44,7 @@ class TimeboxList extends React.Component {
         
     }
     updateTimebox = (indexToUpdate, timeboxToUpdate) => {
-        TimeboxesAPI.replaceTimebox(timeboxToUpdate)
+        TimeboxesAPI.replaceTimebox(timeboxToUpdate, this.context.accessToken)
             .then(
                 (updatedTimebox) => this.setState(prevState => {
                     const timeboxes = prevState.timeboxes.map((timebox, index) =>
@@ -61,26 +64,27 @@ class TimeboxList extends React.Component {
         }
         
     }
-    render() {
-        return (
-            <>
-                <TimeboxCreator onCreate={this.handleCreate} />
-                { this.state.loading ? "Timeboxy się ładują..." : null}
+
+render() {
+    return (
+        <>
+            <TimeboxCreator onCreate={this.handleCreate} />
+            { this.state.loading ? "Timeboxy się ładują..." : null}
                 { this.state.error ? "Nie udało się załadować :(" : null }
-                {
-                    this.state.timeboxes.map((timebox, index) => (
-                        <Timebox 
-                            key={timebox.id} 
-                            title={timebox.title} 
-                            totalTimeInMinutes={timebox.totalTimeInMinutes}
-                            onDelete={() => this.removeTimebox(index)}
-                            onEdit={() => this.updateTimebox(index, {...timebox, title: "Updated timebox"})}
-                        />
-                    ))
-                }
-            </>
-        )
-    }
+            {this.state.timeboxes.map((timebox, index) => (
+                <Timebox
+                    key={uuid.v4()}
+                    title={timebox.title}
+                    totalTimeInMinutes={timebox.totalTimeInMinutes}
+                    onDelete={() => this.removeTimebox(index, 1)}
+                    onUpdate={(updatedTimebox) => this.updateTimebox(index, 1, updatedTimebox)}
+                />
+            ))}
+        </>
+    )
+}
 }
 
-export default TimeboxList;
+TimeboxList.contextType = AuthenticationContext;
+
+export default TimeboxList; 

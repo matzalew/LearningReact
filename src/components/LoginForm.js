@@ -1,9 +1,11 @@
 import React from "react";
+import AuthenticationContext from "../contexts/AuthenticationContext"
 
 class LoginForm extends React.Component {
     constructor(props) {
         super(props);
-        this.loginForm = React.createRef();
+        this.emailInput = React.createRef();
+        this.passwordInput = React.createRef();
     }
     loginForm = (event) => {
         event.preventDefault(); 
@@ -17,6 +19,9 @@ class LoginForm extends React.Component {
 
     render() {
         return (
+            <AuthenticationContext.Consumer>{
+                ({ onLoginAttempt }) => {
+            return (
             <form onSubmit={this.loginForm} className="LoginForm">
                 { this.props.errorMessage ? 
                     <div className="LoginForm__error-message">{this.props.errorMessage}</div> :
@@ -27,7 +32,7 @@ class LoginForm extends React.Component {
                     <input 
                         ref={this.emailInput}
                         type="text" 
-                        defaultValue="bob@example.com"
+                        defaultValue="matzalew@abc.pl"
                     />
                 </label><br/>
                 <label>
@@ -35,14 +40,20 @@ class LoginForm extends React.Component {
                     <input 
                         ref={this.passwordInput}
                         type="password" 
-                        defaultValue="secret"
+                        defaultValue="qwerty"
                     />
                 </label><br />
                 <button 
                 >Zaloguj się</button>
             </form>
+                    )
+                    }
+                }
+            </AuthenticationContext.Consumer>
         )
     }
 }
+
+LoginForm.contextType = AuthenticationContext;
 
 export default LoginForm;

@@ -1,11 +1,11 @@
 import React from "react";
 
-import EditableTimebox from "./EditableTimebox";
-import TimeboxList from "./TimeboxList";
 import ErrorBoundary from "./ErrorBoundary";
 import LoginForm from "./LoginForm";
+import AuthenticatedApp from "./AuthenticatedApp";
+
 import AuthenticationAPI from "../api/FetchAuthenticationApi";
-import jwt from "jsonwebtoken";
+import AuthenticationContext from "../contexts/AuthenticationContext";
 
 class App extends React.Component {
     state = {
@@ -14,12 +14,7 @@ class App extends React.Component {
     }
 
     isUserLoggedIn() {
-        return !!this.state.accessToken;
-    }
-
-    getUserEmail() {
-        const decodedToken = jwt.decode(this.state.accessToken);
-        return decodedToken.email;
+        return !! this.state.accessToken;
     }
 
     handleLoginAttempt = (credentials) => {
@@ -46,24 +41,26 @@ class App extends React.Component {
     render() {
         return (
             <div className="App">
-                <ErrorBoundary message="Coś nie działa w całej aplikacji">
-                    {
-                        this.isUserLoggedIn() ?
-                        <>
-                            <header className="header">
-                                Witaj {this.getUserEmail()}
-                                <a onClick={this.handleLogout}className="header__logout-link" href="#">Wyloguj się</a>
-                            </header>
-                            <TimeboxList />
-                            <EditableTimebox />
-                        </> :
-                        <LoginForm 
-                            errorMessage={ this.state.previousLoginAttemptFailed ? "Nie udało się zalogować" : null} 
-                            onLoginAttempt={this.handleLoginAttempt}    
-                        />
-                    }
-                    
-                </ErrorBoundary>
+                 <AuthenticationContext.Provider
+                    value={ {
+                        accessToken: this.state.accessToken,
+                        onLogout: this.handleLogout,
+                        onLoginAttempt: this.handleLoginAttempt
+                    } }
+                >
+                    <ErrorBoundary message="Coś nie działa w całej aplikacji">
+                        {
+                            this.isUserLoggedIn() ?
+                                <AuthenticatedApp />
+                            :
+                            <LoginForm 
+                                errorMessage={ this.state.previousLoginAttemptFailed ? "Nie udało się zalogować" : null} 
+                                onLoginAttempt={this.handleLoginAttempt}    
+                            />
+                        }
+                        
+                    </ErrorBoundary>
+                </AuthenticationContext.Provider>
             </div>
         )
     }
