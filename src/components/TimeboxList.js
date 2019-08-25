@@ -2,9 +2,10 @@ import React from "react";
 import uuid from "uuid";
 
 import TimeboxCreator from "./TimeboxCreator";
-import TimeboxesAPI from "../api/FetchTimeboxesApi";
-import Timebox from "./Timebox";
+import TimeboxesAPI from "../api/AxiosTimeboxesApi";
 import AuthenticationContext from "../contexts/AuthenticationContext";
+
+const Timebox = React.lazy(() => import("./Timebox"));
 
 class TimeboxList extends React.Component {
     state = {
@@ -72,13 +73,15 @@ render() {
             { this.state.loading ? "Timeboxy się ładują..." : null}
                 { this.state.error ? "Nie udało się załadować :(" : null }
             {this.state.timeboxes.map((timebox, index) => (
-                <Timebox
+                <React.Suspense fallback="Loading timeboxes">
+                    <Timebox
                     key={uuid.v4()}
                     title={timebox.title}
                     totalTimeInMinutes={timebox.totalTimeInMinutes}
                     onDelete={() => this.removeTimebox(index, 1)}
                     onUpdate={(updatedTimebox) => this.updateTimebox(index, 1, updatedTimebox)}
-                />
+                    />
+                </React.Suspense>
             ))}
         </>
     )

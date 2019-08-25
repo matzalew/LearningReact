@@ -2,10 +2,11 @@ import React from "react";
 
 import ErrorBoundary from "./ErrorBoundary";
 import LoginForm from "./LoginForm";
-import AuthenticatedApp from "./AuthenticatedApp";
 
 import AuthenticationAPI from "../api/FetchAuthenticationApi";
 import AuthenticationContext from "../contexts/AuthenticationContext";
+
+const AuthenticatedApp = React.lazy(() => import("./AuthenticatedApp"));
 
 class App extends React.Component {
     state = {
@@ -51,7 +52,9 @@ class App extends React.Component {
                     <ErrorBoundary message="Coś nie działa w całej aplikacji">
                         {
                             this.isUserLoggedIn() ?
-                                <AuthenticatedApp />
+                                <React.Suspense fallback="Loading...">
+                                    <AuthenticatedApp />
+                                </React.Suspense>
                             :
                             <LoginForm 
                                 errorMessage={ this.state.previousLoginAttemptFailed ? "Nie udało się zalogować" : null} 

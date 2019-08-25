@@ -3,13 +3,12 @@ import makeRequest from './makeFetchRequest'
 const BASE_URL = "http://localhost:5000/timeboxes"
 const FetchTimeboxesAPI = {
     getAllTimeboxes: async function(accessToken) {
-        console.log({accessToken})
         const response = await makeRequest(`${BASE_URL}`, "GET", null, accessToken)
         const timeboxes = await response.json();
         return timeboxes;
     },
     addTimebox: async function(timeboxToAdd, accessToken) {
-        const response = await makeRequest(`${BASE_URL}`, "POST", timeboxToAdd, null, accessToken)
+        const response = await makeRequest(`${BASE_URL}`, "POST", timeboxToAdd, accessToken)
         const addedTimebox = await response.json();
         return addedTimebox;
     },

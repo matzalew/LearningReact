@@ -1,4 +1,3 @@
-
 async function makeRequest(url, method, body, accessToken) {
     const jsonBody = body ? JSON.stringify(body) : undefined;
     const headers = {

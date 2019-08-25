@@ -1,0 +1,3 @@
+//json-server-auth --watch db.json -r routes.json --port 5000
+
+//npm start
