@@ -7,7 +7,7 @@ function TimeboxesList({ timeboxes, onDeleteTimebox, onUpdateTimebox}) {
   return timeboxes.map( (timebox, index) => (
       <React.Suspense fallback="Loading timeboxes">
         <Timebox
-          id={timebox.id}
+          key={timebox.id}
           title={timebox.title}
           totalTimeInMinutes={timebox.totalTimeInMinutes}
           onDelete={() => onDeleteTimebox(index)}
