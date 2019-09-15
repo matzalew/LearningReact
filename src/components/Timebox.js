@@ -4,6 +4,7 @@ class Timebox extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            id: props.id,
             title: props.title,
             totalTimeInMinutes: props.totalTimeInMinutes
         }

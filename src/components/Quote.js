@@ -1,30 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
+const Quote = () => {
+  const [quote, setQuote] = useState();
 
-class Quote extends React.Component {
-    state = {
-        quote: null
-    }
-    componentDidMount() {
-        import("inspirational-quotes").then(
-            (Quotes) => {
-                this.setState({ quote: Quotes.getQuote()})
-            }
-        ).catch(() => console.log("Nothing happen :( "))
-    }
-    render() {
-        return (
-            <React.Fragment>
-                {this.state.quote ? 
-                    <figure>
-                        <blockquote>{this.state.quote.text}</blockquote>
-                        <figcaption><cite>{this.state.quote.author}</cite></figcaption>
-                    </figure>:
-                    "..."
-                }
-            </React.Fragment>
-        )
-    }
-}
+  useEffect(() => {
+    import("inspirational-quotes")
+      .then(Quotes => {
+        setQuote(Quotes.getQuote());
+      })
+      .catch(() => console.log("Couldn't load quotes"));
+  });
+
+  return (
+    <>
+      {quote ? (
+        <figure>
+          <blockquote>{quote.text}</blockquote>
+          <figcaption>
+            <cite>{quote.author}</cite>
+          </figcaption>
+        </figure>
+      ) : (
+        "..."
+      )}
+    </>
+  );
+};
 
 export default Quote;

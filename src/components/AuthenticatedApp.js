@@ -1,7 +1,7 @@
 import React from "react"
 
 import EditableTimebox from "./EditableTimebox";
-import TimeboxList from "./TimeboxList";
+import TimeboxManager from "./TimeboxManager";
 import Header from "./Header";
 import Quote from "./Quote";
 
@@ -9,7 +9,7 @@ function AuthenticatedApp(props) {
     return (
         <React.Fragment>
             <Header /> 
-            <TimeboxList  />
+            <TimeboxManager  />
             <EditableTimebox />
             <Quote />
         </React.Fragment>

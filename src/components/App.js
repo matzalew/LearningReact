@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 import ErrorBoundary from "./ErrorBoundary";
 import LoginForm from "./LoginForm";
@@ -8,65 +8,60 @@ import AuthenticationContext from "../contexts/AuthenticationContext";
 
 const AuthenticatedApp = React.lazy(() => import("./AuthenticatedApp"));
 
-class App extends React.Component {
-    state = {
-        accessToken: null,
-        previousLoginAttemptFailed: false
-    }
+function App() {
+    const [accessToken, setAccessToken] = useState();
+    const [previousLoginAttemptFailed, setPreviousLoginAttemptFailed] = useState(
+      false
+    );
 
-    isUserLoggedIn() {
-        return !! this.state.accessToken;
-    }
+    function isUserLoggedIn() {
+        return !!accessToken;
+      }
 
-    handleLoginAttempt = (credentials) => {
+    function handleLoginAttempt(credentials) {
         AuthenticationAPI.login(credentials)
-            .then( ({ accessToken }) => {
-                this.setState({
-                    accessToken,
-                    previousLoginAttemptFailed: false
-                })
-            }).catch( () => {
-                this.setState({
-                    previousLoginAttemptFailed: true
-                })
-            })
-    }
+          .then(({ accessToken }) => {
+            setAccessToken(accessToken);
+            setPreviousLoginAttemptFailed(false);
+          })
+          .catch(() => {
+            setPreviousLoginAttemptFailed(true);
+          });
+      }
 
-    handleLogout = () => {
-        this.setState({
-            accessToken: null,
-            previousLoginAttemptFailed: false
-        })
-    }
+    function handleLogout() {
+        setAccessToken(null);
+        setPreviousLoginAttemptFailed(false);
+      }
 
-    render() {
-        return (
-            <div className="App">
-                 <AuthenticationContext.Provider
-                    value={ {
-                        accessToken: this.state.accessToken,
-                        onLogout: this.handleLogout,
-                        onLoginAttempt: this.handleLoginAttempt
-                    } }
-                >
-                    <ErrorBoundary message="Coś nie działa w całej aplikacji">
-                        {
-                            this.isUserLoggedIn() ?
-                                <React.Suspense fallback="Loading...">
-                                    <AuthenticatedApp />
-                                </React.Suspense>
-                            :
+
+    return (
+        <div className="App">
+             <AuthenticationContext.Provider
+                value={ {
+                    accessToken: accessToken,
+                    onLogout: handleLogout,
+                    onLoginAttempt: handleLoginAttempt
+                } }
+            >
+                <ErrorBoundary message="Coś nie działa w całej aplikacji">
+                    {
+                        isUserLoggedIn() ?
+                            <React.Suspense fallback="Loading...">
+                                <AuthenticatedApp />
+                            </React.Suspense>
+                        :
                             <LoginForm 
-                                errorMessage={ this.state.previousLoginAttemptFailed ? "Nie udało się zalogować" : null} 
-                                onLoginAttempt={this.handleLoginAttempt}    
+                                errorMessage={previousLoginAttemptFailed ? "Nie udało się zalogować" : null} 
+                                onLoginAttempt={handleLoginAttempt}    
                             />
-                        }
+                    }
                         
-                    </ErrorBoundary>
-                </AuthenticationContext.Provider>
-            </div>
-        )
-    }
+                </ErrorBoundary>
+            </AuthenticationContext.Provider>
+        </div>
+    )
+    
 }
 
 export default App
