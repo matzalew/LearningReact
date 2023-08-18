@@ -6,7 +6,7 @@
     "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "inspirational-quotes": "^1.0.8",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "node-sass": "^7.0.0",
     "prettier": "^1.17.0",
     "react": "^16.8.6",
