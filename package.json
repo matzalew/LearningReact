@@ -7,7 +7,7 @@
     "classnames": "^2.2.6",
     "inspirational-quotes": "^1.0.8",
     "jsonwebtoken": "^9.0.0",
-    "node-sass": "^7.0.0",
+    "node-sass": "^7.0.3",
     "prettier": "^1.17.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
